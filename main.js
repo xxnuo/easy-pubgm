@@ -7,6 +7,8 @@ autojs.setRootMode(true);
 device.wakeUpIfNeeded();
 device.wakeUp();
 
+requestScreenCapture();
+
 while (true) {
   openAppModule.loop();
   sleep(300);
