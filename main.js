@@ -15,5 +15,5 @@ while (true) {
   sleep(200);
 
   startGameModule.loop();
-  sleep(1000);
+  sleep(2000);
 }
