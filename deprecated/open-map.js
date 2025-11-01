@@ -1,4 +1,4 @@
-const { getRandomClickPoint } = require('./utils');
+const { getRandomClickPoint } = require('../modules/utils');
 
 function loop() {
   toastLog('[open-map] 开始检测按钮');

@@ -1,4 +1,4 @@
-const { getRandomClickButtonPoint } = require('./utils');
+const { getRandomClickButtonPoint } = require('../modules/utils');
 
 function loop() {
   toastLog('[game-over] 开始检测继续按钮或返回大厅按钮');
