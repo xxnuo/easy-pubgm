@@ -14,12 +14,14 @@ function loop() {
     if (isFoundText('人数')) {
       break;
     }
+    sleep(1000);
   }
   log('[start-game] 等待跳伞');
   while (true) {
     if (isFoundText('离开')) {
       break;
     }
+    sleep(1000);
   }
   clickText('离开');
   sleep(200);
