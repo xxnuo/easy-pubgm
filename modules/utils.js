@@ -13,7 +13,7 @@ function getRandomClickButtonPoint(bounds, maxOffset = 10) {
   let offsetX = Math.random() * maxOffset * 2 - maxOffset;
   let offsetY = Math.random() * maxOffset * 2 - maxOffset;
 
-  log(`getRandomClickButtonPoint: (${centerX + offsetX}, ${centerY + offsetY})`);
+  // log(`getRandomClickButtonPoint: (${centerX + offsetX}, ${centerY + offsetY})`);
 
   return {
     x: centerX + offsetX,
