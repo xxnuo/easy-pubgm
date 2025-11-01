@@ -5,7 +5,7 @@ function loop() {
 
   while (true) {
     let result = ocr.detect();
-    log(result);
+    // log(result);
 
     // 检查是否已经回到开始游戏界面
     let foundStartGame = false;
