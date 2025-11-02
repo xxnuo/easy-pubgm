@@ -18,6 +18,10 @@ function loop() {
       clickText('取消');
       continue;
     }
+    if (isFoundText('已结束')) {
+      clickText('确定');
+      continue;
+    }
     waitText('X');
     closeX();
     sleep(200);
