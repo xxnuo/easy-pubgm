@@ -13,6 +13,8 @@ function loop() {
   while (true) {
     if (isFoundText('开始游戏')) {
       break;
+    } else {
+      sleep(500);
     }
     if (isFoundText('取消')) {
       clickText('取消');
@@ -24,7 +26,6 @@ function loop() {
     }
     waitText('X');
     closeX();
-    sleep(200);
   }
 
   log('[open-app] 逻辑结束');
