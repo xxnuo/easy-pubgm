@@ -57,7 +57,7 @@ function killApp(packageName) {
 };
 
 // 等待文本出现
-function waitText(text, maxCycle = 10, sleepTime = 500) {
+function waitText(text, maxCycle = 10, sleepTime = 700) {
   let result = ocr.detect();
   // log(result);
 
