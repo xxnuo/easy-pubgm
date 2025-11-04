@@ -1,6 +1,6 @@
 # Easy-PUBGM
 
-基于 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 的和平精英全自动掉分脚本。目前逻辑较为简单，跳伞后大退，不能保证稳定把把掉大分但能简单快速掉分。
+基于 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 的和平精英全自动掉分脚本。目前逻辑较为简单：跳伞后大退。不能保证稳定把把掉大分但能简单快速掉分。
 
 ## 功能
 
@@ -12,7 +12,7 @@
 
 ## 使用前设置
 
-安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 并授予相关权限。
+安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 并授予相关权限。主要是屏幕录制权限用于 OCR 识别各种按钮，其他按需设置。
 
 在游戏内进行以下设置：
 
