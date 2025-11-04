@@ -1,4 +1,4 @@
-# Easy-PUBGM
+# Easy PUBG Mobile
 
 基于 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 的和平精英全自动掉分脚本。目前逻辑较为简单：跳伞后大退。不能保证稳定把把掉大分但能简单快速掉分。
 
