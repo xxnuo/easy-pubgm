@@ -54,7 +54,7 @@ function killApp(packageName) {
         try {
             shell('am force-stop ' + packageName, true);
         } catch (error) {
-            log('[kill-app] 杀死应用失败: ' + error);
+            toastLog('[kill-app] 杀死应用失败: ' + error);
             exit();
         }
     }
@@ -109,13 +109,14 @@ function closeX(region = ScreenRegion.ALL) {
 
 function openAppLoop() {
     const appPackageName = 'com.tencent.tmgp.pubgmhd';
-    log('[open-app] 杀掉应用');
+    toastLog('[open-app] 杀掉应用');
     killApp(appPackageName);
     sleep(300);
-    log('[open-app] 启动应用');
+    toastLog('[open-app] 启动应用');
     app.launch(appPackageName)
+    sleep(2000);
     waitText('公告');
-    log('[open-app] 关闭公告');
+    toastLog('[open-app] 关闭公告');
     while (true) {
         let result = ocr.detect(getRegion(ScreenRegion.ALL));
         let foundStartGame = false;
@@ -153,13 +154,13 @@ function openAppLoop() {
         // sleep(200);
     }
 
-    log('[open-app] 逻辑结束');
+    toastLog('[open-app] 逻辑结束');
 }
 
 // ============ Select Mode Module ============
 
 function selectModeLoop() {
-    log('[select-mode] 选择模式');
+    toastLog('[select-mode] 选择模式');
     clickText('第三人称', region = ScreenRegion.TOP_LEFT);
     while (true) {
         if (isFoundText('自动匹配队友', region = ScreenRegion.TOP_RIGHT)) {
@@ -168,23 +169,23 @@ function selectModeLoop() {
         sleep(500);
     }
 
-    // log(clickText('自动匹配队友', 0, 200, false, true));
+    // toastLog(clickText('自动匹配队友', 0, 200, false, true));
     // 通用识图有问题，使用特殊方法
     ocr.mode = 'paddle';
     let result = ocr.detect(getRegion(ScreenRegion.TOP_RIGHT));
     ocr.mode = 'mlkit';
 
-    // log(result);
+    // toastLog(result);
     for (let i = result.length - 1; i >= 0; i--) {
         if (result[i].label.includes('自动匹配队友')) {
-            log(result[i]);
+            toastLog(result[i]);
             let bounds = result[i].bounds;
             let height = bounds.bottom - bounds.top;
             let clickPoint = {
                 x: bounds.left + 10,
                 y: bounds.top + height / 2,
             };
-            // log(`clickPoint: (${clickPoint.x.toFixed(0)}, ${clickPoint.y.toFixed(0)})`);
+            // toastLog(`clickPoint: (${clickPoint.x.toFixed(0)}, ${clickPoint.y.toFixed(0)})`);
             click(clickPoint.x, clickPoint.y);
             break;
         }
@@ -193,13 +194,13 @@ function selectModeLoop() {
     sleep(200);
 
     clickText('确定', region = ScreenRegion.BOTTOM_RIGHT);
-    log('[select-mode] 逻辑结束');
+    toastLog('[select-mode] 逻辑结束');
 }
 
 // ============ Start Game Module ============
 
 function startGameLoop() {
-    log('[start-game] 进入大厅');
+    toastLog('[start-game] 进入大厅');
     while (true) {
         if (isFoundText('开始游戏', region = ScreenRegion.TOP_LEFT)) {
             break;
@@ -208,14 +209,14 @@ function startGameLoop() {
     }
     clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
     sleep(200);
-    log('[start-game] 等待人数');
+    toastLog('[start-game] 等待人数');
     while (true) {
         if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
             break;
         }
         sleep(1000);
     }
-    log('[start-game] 等待跳伞');
+    toastLog('[start-game] 等待跳伞');
     while (true) {
         if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
             break;
@@ -224,7 +225,7 @@ function startGameLoop() {
     }
     clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
     sleep(200);
-    log('[start-game] 逻辑结束');
+    toastLog('[start-game] 逻辑结束');
 }
 
 // ============ Main ============
