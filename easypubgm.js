@@ -39,16 +39,6 @@ function getRandomClickPoint(x, y, maxOffset = 10) {
     };
 }
 
-/**
- * 获取资产目录
- * @returns {string} - 资产目录路径
- */
-function getAssetsDir() {
-    let projectDir = files.cwd();
-    let assetsDir = projectDir + '/assets';
-    return assetsDir;
-}
-
 /* 
  * 杀死指定应用
  * @param {string} packageName - 应用包名
@@ -165,8 +155,9 @@ function openAppLoop() {
             continue;
         }
 
-        sleep(500);
+        waitText('X');
         closeX();
+        sleep(200);
     }
 
     log('[open-app] 逻辑结束');
