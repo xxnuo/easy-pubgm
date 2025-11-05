@@ -1,6 +1,6 @@
-const openAppModule = require('./modules/open-app');
-const selectModeModule = require('./modules/select-mode');
-const startGameModule = require('./modules/start-game');
+const openAppModule = require('../modules/open-app');
+const selectModeModule = require('../modules/select-mode');
+const startGameModule = require('../modules/start-game');
 
 autojs.setRootMode(true);
 
