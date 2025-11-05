@@ -208,12 +208,12 @@ function startGameLoop() {
     }
     log('[start-game] 等待跳伞');
     while (true) {
-        if (isFoundText('离开', region = ScreenRegion.ALL)) {
+        if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
             break;
         }
         sleep(2000);
     }
-    clickText('离开', region = ScreenRegion.ALL);
+    clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
     sleep(200);
     log('[start-game] 逻辑结束');
 }
