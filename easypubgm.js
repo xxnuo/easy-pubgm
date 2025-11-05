@@ -20,11 +20,11 @@ function getRegion(region) {
         case ScreenRegion.TOP_LEFT:
             return [0, 0, REGION_WIDTH, REGION_HEIGHT];
         case ScreenRegion.TOP_RIGHT:
-            return [REGION_WIDTH, 0, SCREEN_WIDTH, REGION_HEIGHT];
+            return [REGION_WIDTH, 0, REGION_WIDTH, REGION_HEIGHT];
         case ScreenRegion.BOTTOM_LEFT:
-            return [0, REGION_HEIGHT, REGION_WIDTH, SCREEN_HEIGHT];
+            return [0, REGION_HEIGHT, REGION_WIDTH, REGION_HEIGHT];
         case ScreenRegion.BOTTOM_RIGHT:
-            return [REGION_WIDTH, REGION_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT];
+            return [REGION_WIDTH, REGION_HEIGHT, REGION_WIDTH, REGION_HEIGHT];
         default:
             return [0, 0, SCREEN_WIDTH, SCREEN_HEIGHT];
     }
@@ -48,7 +48,16 @@ function getRandomClickPoint(x, y, maxOffset = 10) {
 
 // 杀死指定应用，需要 Shizuku 权限或者 Root 权限
 function killApp(packageName) {
-    shell('am force-stop ' + packageName);
+    try {
+        shizuku("am force-stop " + packageName);
+    } catch (error) {
+        try {
+            shell('am force-stop ' + packageName, true);
+        } catch (error) {
+            log('[kill-app] 杀死应用失败: ' + error);
+            exit();
+        }
+    }
 }
 
 // 等待文本出现
