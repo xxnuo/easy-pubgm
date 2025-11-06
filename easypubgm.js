@@ -114,8 +114,7 @@ function openAppLoop() {
     sleep(500);
     toastLog('[open-app] 启动应用');
     app.launch(appPackageName)
-    sleep(2000);
-    sleep(1000);
+    sleep(10e3);
     waitText('公告');
     toastLog('[open-app] 关闭公告');
     while (true) {
@@ -235,7 +234,7 @@ function startGameLoop() {
 auto.waitFor()
 
 // 请求屏幕截图权限
-// images.requestScreenCapture();
+images.requestScreenCapture(false);
 
 while (true) {
     openAppLoop();
