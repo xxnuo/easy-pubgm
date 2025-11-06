@@ -111,7 +111,7 @@ function openAppLoop() {
     const appPackageName = 'com.tencent.tmgp.pubgmhd';
     toastLog('[open-app] 杀掉应用');
     killApp(appPackageName);
-    sleep(300);
+    sleep(500);
     toastLog('[open-app] 启动应用');
     app.launch(appPackageName)
     sleep(2000);
@@ -234,7 +234,7 @@ function startGameLoop() {
 auto.waitFor()
 
 // 请求屏幕截图权限
-images.requestScreenCapture();
+// images.requestScreenCapture();
 
 while (true) {
     openAppLoop();
