@@ -128,6 +128,7 @@ function openAppLoop() {
         let foundStartGame = false;
         let foundThirdPerson = false;
         let foundCancel = false;
+        let foundClose = false;
         let foundFinished = false;
 
         for (let i = 0; i < result.length; i++) {
@@ -140,6 +141,9 @@ function openAppLoop() {
             if (result[i].label.includes('取消')) {
                 foundCancel = true;
             }
+            if (result[i].label.includes('关闭')) {
+                foundClose = true;
+            }
             if (result[i].label.includes('已结束')) {
                 foundFinished = true;
             }
@@ -150,6 +154,11 @@ function openAppLoop() {
         }
         if (foundCancel) {
             clickText('取消');
+            sleep(300);
+            continue;
+        }
+        if (foundClose) {
+            clickText('关闭');
             sleep(300);
             continue;
         }
