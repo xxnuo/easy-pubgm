@@ -151,7 +151,7 @@ function openAppLoop() {
 
         waitText('X', region = ScreenRegion.TOP_RIGHT);
         closeX(region = ScreenRegion.TOP_RIGHT);
-        // sleep(200);
+        sleep(300);
     }
 
     toastLog('[open-app] 逻辑结束');
