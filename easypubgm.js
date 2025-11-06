@@ -7,15 +7,21 @@ const ScreenRegion = {
     BOTTOM_LEFT: 3,
     BOTTOM_RIGHT: 4,
 }
-const SCREEN_WIDTH = device.width;
-const SCREEN_HEIGHT = device.height;
-const REGION_WIDTH = SCREEN_WIDTH / 2 | 0;
-const REGION_HEIGHT = SCREEN_HEIGHT / 2 | 0;
+
+let SCREEN_WIDTH, SCREEN_HEIGHT, REGION_WIDTH, REGION_HEIGHT;
+
+function updateScreenSize() {
+    SCREEN_WIDTH = device.width;
+    SCREEN_HEIGHT = device.height;
+    REGION_WIDTH = SCREEN_WIDTH / 2 | 0;
+    REGION_HEIGHT = SCREEN_HEIGHT / 2 | 0;
+}
 
 // 将屏幕分为四个区域，计算每个区域的 region
 // @param {number} region - 区域索引，0-3 分别对应左上、右上、左下、右下
 // @returns {number[]} - 区域坐标 [X 坐标, Y 坐标, 宽, 高]
 function getRegion(region) {
+    updateScreenSize();
     switch (region) {
         case ScreenRegion.TOP_LEFT:
             return [0, 0, REGION_WIDTH, REGION_HEIGHT];
@@ -233,8 +239,8 @@ function startGameLoop() {
 // 等待无障碍服务
 auto.waitFor()
 
-// 请求屏幕截图权限
-images.requestScreenCapture(false);
+// 请求屏幕截图权限, 不限定屏幕方向
+images.requestScreenCapture();
 
 while (true) {
     openAppLoop();
