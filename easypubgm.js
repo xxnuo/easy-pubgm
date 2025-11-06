@@ -126,12 +126,16 @@ function openAppLoop() {
     while (true) {
         let result = ocr.detect(getRegion(ScreenRegion.ALL));
         let foundStartGame = false;
+        let foundThirdPerson = false;
         let foundCancel = false;
         let foundFinished = false;
 
         for (let i = 0; i < result.length; i++) {
             if (result[i].label.includes('开始游戏')) {
                 foundStartGame = true;
+            }
+            if (result[i].label.includes('第三人称')) {
+                foundThirdPerson = true;
             }
             if (result[i].label.includes('取消')) {
                 foundCancel = true;
@@ -141,7 +145,7 @@ function openAppLoop() {
             }
         }
 
-        if (foundStartGame) {
+        if (foundStartGame && foundThirdPerson) {
             break;
         }
         if (foundCancel) {
