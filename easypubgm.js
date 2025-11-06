@@ -115,6 +115,7 @@ function openAppLoop() {
     toastLog('[open-app] 启动应用');
     app.launch(appPackageName)
     sleep(2000);
+    sleep(1000);
     waitText('公告');
     toastLog('[open-app] 关闭公告');
     while (true) {
