@@ -231,6 +231,19 @@ function openAppLoop() {
 
 function selectModeLoop() {
     toastLog('[select-mode] 选择模式');
+    
+    // 先关闭可能存在的公告弹窗（没有标题，只有X）
+    toastLog('[select-mode] 检查并关闭残留公告');
+    let maxAttempts = 5; // 最多尝试5次
+    for (let i = 0; i < maxAttempts; i++) {
+        if (isFoundText('X', region = ScreenRegion.TOP_RIGHT)) {
+            closeX(region = ScreenRegion.TOP_RIGHT);
+            sleep(300);
+        } else {
+            break;
+        }
+    }
+    
     clickText('第三人称', region = ScreenRegion.TOP_LEFT);
     while (true) {
         if (isFoundText('自动匹配队友', region = ScreenRegion.TOP_RIGHT)) {
