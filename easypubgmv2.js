@@ -38,8 +38,9 @@ function directionLoop() {
     toastLog(`往上看 1s: ${JSON.stringify(LOOP_UP_START_POINT)}, ${JSON.stringify(LOOP_UP_END_POINT)}`);
     gesture(1000, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
     sleep(Math.random() * 1000);
-    // toastLog(`冲刺 1s: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
-
+    toastLog(`冲刺 1s: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
+    gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
+    
     let gameOver = false;
     let detectEndThread = threads.start(function () {
         toastLog("新线程检测");
