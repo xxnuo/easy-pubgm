@@ -15,7 +15,7 @@
 
 ### 使用前设置
 
-安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 并授予相关权限。
+安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6/releases) 并授予相关权限。
 
 - 必须开启无障碍服务按按钮
 - 屏幕录制权限用于 OCR 识别各种按钮
@@ -23,7 +23,7 @@
 
 ### 使用方法
 
-- 下载 `easypubgmv2.js` 脚本
+- 下载 [easypubgmv2.js](easypubgmv2.js) 脚本
 - 打开游戏，进入特训岛
 - 在 AutoJS6 的悬浮窗中选择三个点的菜单，打开指针位置显示功能
 - 然后在特训岛测出一些脚本内需要的坐标，然后修改脚本内这几行
@@ -73,7 +73,7 @@ Enjoy! 享受全自动掉分吧!
 
 ### 使用前设置
 
-安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 并授予相关权限。
+安装 [AutoJS6](https://github.com/SuperMonster003/AutoJs6/releases) 并授予相关权限。
 
 - 必须开启无障碍服务按按钮
 - 屏幕录制权限用于 OCR 识别各种按钮
@@ -88,5 +88,5 @@ Enjoy! 享受全自动掉分吧!
 
 ### 使用方法
 
-- 下载 `easypubgmv1.js` 脚本
+- 下载 [easypubgmv1.js](easypubgmv1.js) 脚本
 - 在 AutoJS6 中打开脚本运行即可
