@@ -31,5 +31,140 @@ function sprintLoop() {
     gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 }
 
+// 主函数循环
 // turnBackLoop();
-loopUpLoop();
+function mainLoop() {
+
+}
+
+// 工具函数
+
+const ScreenRegion = {
+    ALL: 0,
+    TOP_LEFT: 1,
+    TOP_RIGHT: 2,
+    BOTTOM_LEFT: 3,
+    BOTTOM_RIGHT: 4,
+}
+
+// 将屏幕分为四个区域，计算每个区域的 region
+// @param {number} region - 区域索引，0-3 分别对应左上、右上、左下、右下
+// @param {Image} img - 可选的图像对象，用于获取实际图像尺寸
+// @returns {number[]} - 区域坐标 [X 坐标, Y 坐标, 宽, 高]
+function getRegion(region, img) {
+    let width, height;
+
+    // 如果提供了图像，使用图像的实际尺寸，否则使用设备尺寸
+    if (img) {
+        width = img.width;
+        height = img.height;
+    } else {
+        width = device.width;
+        height = device.height;
+    }
+
+    const regionWidth = width / 2 | 0;
+    const regionHeight = height / 2 | 0;
+
+    switch (region) {
+        case ScreenRegion.TOP_LEFT:
+            return [0, 0, regionWidth, regionHeight];
+        case ScreenRegion.TOP_RIGHT:
+            return [regionWidth, 0, regionWidth, regionHeight];
+        case ScreenRegion.BOTTOM_LEFT:
+            return [0, regionHeight, regionWidth, regionHeight];
+        case ScreenRegion.BOTTOM_RIGHT:
+            return [regionWidth, regionHeight, regionWidth, regionHeight];
+        default:
+            return [0, 0, width, height];
+    }
+}
+
+// 计算按钮中心点并添加随机偏移
+function getRandomClickButtonPoint(bounds, maxOffset = 10) {
+    return {
+        x: ((bounds.left + bounds.right) / 2) + (Math.random() * maxOffset * 2 - maxOffset),
+        y: ((bounds.top + bounds.bottom) / 2) + (Math.random() * maxOffset * 2 - maxOffset)
+    };
+}
+
+// 在指定坐标点添加随机偏移
+function getRandomClickPoint(x, y, maxOffset = 10) {
+    return {
+        x: x + (Math.random() * maxOffset * 2 - maxOffset),
+        y: y + (Math.random() * maxOffset * 2 - maxOffset)
+    };
+}
+
+// 等待文本出现
+function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.ALL) {
+    let cycle = 0;
+    let found = false;
+    while (!found && cycle < maxCycle) {
+        try {
+            // 先截图，然后基于实际图像尺寸计算区域
+            let img = images.captureScreen();
+            if (!img) {
+                toastLog('[waitText] 截图失败，跳过本次检测');
+                cycle++;
+                sleep(sleepTime);
+                continue;
+            }
+
+            let result = ocr.detect(getRegion(region, img));
+            img.recycle(); // 释放图像资源
+
+            for (let i = 0; i < result.length; i++) {
+                if (result[i].label.includes(text)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                return true;
+            } else {
+                cycle++;
+                sleep(sleepTime);
+            }
+        } catch (error) {
+            toastLog('[waitText] OCR 检测失败: ' + error);
+            cycle++;
+            sleep(sleepTime);
+        }
+    }
+    return false;
+}
+
+// 当前屏幕是否包含指定文本
+function isFoundText(text, region = ScreenRegion.ALL) {
+    return waitText(text, maxCycle = 1, sleepTime = 0, region);
+}
+
+// 点击文本
+function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, reverse = false, region = ScreenRegion.ALL) {
+    try {
+        // 先截图，然后基于实际图像尺寸计算区域
+        let img = images.captureScreen();
+        if (!img) {
+            toastLog('[clickText] 截图失败');
+            return false;
+        }
+
+        let result = ocr.detect(getRegion(region, img));
+        img.recycle(); // 释放图像资源
+
+        for (let i = reverse ? 0 : result.length - 1; i >= 0 && i < result.length; i += reverse ? 1 : -1) {
+            if (fullTextMatch ? result[i].label === text : result[i].label.includes(text)) {
+                let clickPoint = getRandomClickButtonPoint(result[i].bounds, maxOffset);
+                press(clickPoint.x, clickPoint.y, clickTime);
+                return true;
+            }
+        }
+        return false;
+    } catch (error) {
+        toastLog('[clickText] OCR 检测失败: ' + error);
+        return false;
+    }
+}
+
+mainLoop();
