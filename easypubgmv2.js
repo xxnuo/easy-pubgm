@@ -94,7 +94,8 @@ function returnHome() {
 
 
             for (let i = 0; i < result.length; i++) {
-                const label = result[i].label;
+                let label = result[i].label;
+                // log(label);
                 // 结束条件
                 if (label.includes('开始游戏')) {
                     foundStartGame = true;
@@ -226,8 +227,8 @@ function getRegion(region, img) {
         height = device.height;
     }
 
-    const regionWidth = width / 2 | 0;
-    const regionHeight = height / 2 | 0;
+    let regionWidth = width / 2 | 0;
+    let regionHeight = height / 2 | 0;
 
     switch (region) {
         case ScreenRegion.TOP_LEFT:
