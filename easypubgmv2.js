@@ -1,39 +1,205 @@
 // 原理：荣都自动往毒外飞毒死
 
+// 等待无障碍服务
+auto.waitFor()
+
+// 请求屏幕截图权限, 不限定屏幕方向
+images.requestScreenCapture();
+
+// // 初始化 RootAutomator
+// autojs.setRootMode(true);
+// let ra = new RootAutomator();
+
+// events.on('exit', function () {
+//     ra.exit();
+// });
+
 // 跳伞后回头滑动的起始坐标和结束坐标，可在特训岛打开指针位置然后将视角从南移到北测试得到，需要耐心多次调试得到合适的数值
 const TURN_BACK_START_POINT = [2760, 835];
 const TURN_BACK_END_POINT = [2305, 842];
 
 // 跳伞后回头完往天上看的滑动的起始坐标和结束坐标，让跳伞飞的更远
-const LOOP_UP_START_POINT = [1860, 1276];
-const LOOP_UP_END_POINT = [1853, 454];
+const LOOP_UP_START_POINT = [2543, 1209];
+const LOOP_UP_END_POINT = [2567, 531];
 
 // 将左摇杆从起始点移动到冲刺点，让角色冲刺飞行
-const SPRINT_START_POINT = [1853, 454];
-const SPRINT_END_POINT = [1860, 1276];
+const SPRINT_START_POINT = [703, 1046];
+const SPRINT_END_POINT = [703, 555];
+const SPRINT_END_POINT2 = [703, 560];
 
-// turnBackLoop: 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
+// 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
 // 其实有更高效的办法，就是判断当前位置距离东西南北哪个边界最近然后往那边飞，但是这就涉及到识别地图了，有些复杂
 // 这样虽然不是最高效的方法，但是比较简单，最后也能往毒边跑，仅有部分情况可能会出现有石头挡住路不能前进
-
-function turnBackLoop() {
+// gestures 函数添加延时执行会导致手机死机重启，不知道为什么，所以现在分开成三个函数
+function directionLoop() {
     toastLog(`回头 1s: ${JSON.stringify(TURN_BACK_START_POINT)}, ${JSON.stringify(TURN_BACK_END_POINT)}`);
     gesture(1000, TURN_BACK_START_POINT, TURN_BACK_END_POINT);
-}
-
-function loopUpLoop() {
+    sleep(Math.random() * 1000);
     toastLog(`往上看 1s: ${JSON.stringify(LOOP_UP_START_POINT)}, ${JSON.stringify(LOOP_UP_END_POINT)}`);
     gesture(1000, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
+    sleep(Math.random() * 1000);
+    // toastLog(`冲刺 1s: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
+
+    let gameOver = false;
+    let detectEndThread = threads.start(function () {
+        while (!gameOver) {
+            if (isFoundText('分享战绩', region = ScreenRegion.BOTTOM_RIGHT)) {
+                gameOver = true;
+                break;
+            }
+            if (isFoundText('退出观战', region = ScreenRegion.BOTTOM_LEFT)) {
+                gameOver = true;
+                break;
+            }
+            sleep(1000);
+        }
+    });
+
+    while (!gameOver) {
+        gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
+        sleep(Math.random() * 1000);
+    }
+
+    detectEndThread.interrupt();
+    toastLog("游戏结束");
 }
 
-function sprintLoop() {
-    toastLog(`冲刺 1s: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
-    gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
+function returnHome() {
+    toastLog("结束游戏")
+    while (true) {
+        try {
+            // 先截图，然后基于实际图像尺寸计算区域
+            let img = images.captureScreen();
+            if (!img) {
+                toastLog('截图失败，跳过本次检测');
+                sleep(300);
+                continue;
+            }
+
+            let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
+            img.recycle(); // 释放图像资源
+
+            // 结束条件
+            let foundStartGame = false;
+            let foundThirdPerson = false;
+
+            // 中间弹窗
+            let foundContinue = false;
+            let foundReturnHome = false;
+            let foundOK = false;
+            let foundExitWatch = false;
+            let foundGroup = false;
+
+
+            for (let i = 0; i < result.length; i++) {
+                // 结束条件
+                if (result[i].label.includes('开始游戏')) {
+                    foundStartGame = true;
+                }
+                else if (result[i].label.includes('第三人称')) {
+                    foundThirdPerson = true;
+                }
+                // 中间弹窗
+                else if (result[i].label.includes('继续')) {
+                    foundContinue = true;
+                }
+                else if (result[i].label.includes('返回大厅')) {
+                    foundReturnHome = true;
+                }
+                else if (result[i].label.includes('确定')) {
+                    foundOK = true;
+                }
+                else if (result[i].label.includes('退出观战')) {
+                    foundExitWatch = true;
+                }
+                else if (result[i].label.includes('暂不需要')) {
+                    foundGroup = true;
+                }
+            }
+
+
+            // 中间弹窗
+            if (foundContinue) {
+                clickText('继续');
+                sleep(300);
+                continue;
+            }
+            if (foundReturnHome) {
+                clickText('返回大厅');
+                sleep(300);
+                continue;
+            }
+            if (foundOK) {
+                clickText('确定');
+                sleep(300);
+                continue;
+            }
+            if (foundExitWatch) {
+                clickText('退出观战');
+                sleep(300);
+                continue;
+            }
+            if (foundGroup) {
+                clickText('暂不需要');
+                sleep(300);
+                continue;
+            }
+
+            if (foundStartGame && foundThirdPerson) {
+                break;
+            }
+        } catch (error) {
+            toastLog('OCR 检测失败: ' + error);
+            sleep(300);
+        }
+    }
+
+    toastLog('回到大厅');
+}
+
+
+function startGameLoop() {
+    clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+    sleep(200);
+    toastLog('等待匹配完成');
+    while (true) {
+        if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
+            break;
+        }
+        sleep(1000);
+    }
+    toastLog('等待可跳伞');
+    while (true) {
+        if (isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
+            break;
+        }
+        sleep(4000);
+    }
+    toastLog('等待跳伞');
+    while (true) {
+        if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
+            break;
+        }
+        sleep(500);
+    }
+    clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
+    toastLog('跳伞完成');
 }
 
 // 主函数循环
 // turnBackLoop();
 function mainLoop() {
+    // startGameLoop();
+    // sleep(1000);
+    // directionLoop();
+    // returnHome();
+
+    ra.touchDown(200, 300, 1);
+    sleep(2e3)
+    ra.touchMove(300, 600, 1);
+    sleep(1000);
+    ra.touchUp(1)
+    ra.exit();
 
 }
 
@@ -167,4 +333,5 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
     }
 }
 
+// 主函数循环
 mainLoop();
