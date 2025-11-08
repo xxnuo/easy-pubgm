@@ -31,18 +31,23 @@ function directionLoop() {
     sleep(Math.random() * 1000);
     toastLog(`冲刺 1s: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
     gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
-    
+
     let gameOver = false;
     let detectEndThread = threads.start(function () {
         toastLog("新线程检测");
         while (!gameOver) {
-            if (isFoundText('分享名次', region = ScreenRegion.BOTTOM_RIGHT)) {
-                gameOver = true;
-                break;
-            }
-            if (isFoundText('退出观战', region = ScreenRegion.BOTTOM_LEFT)) {
-                gameOver = true;
-                break;
+            // 优化：单次截图检测多个文本，减少 OCR 调用
+            let img = images.captureScreen();
+            if (img) {
+                let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
+                for (let i = 0; i < result.length; i++) {
+                    if (result[i].label.includes('分享名次') || result[i].label.includes('退出观战')) {
+                        gameOver = true;
+                        img.recycle();
+                        return;
+                    }
+                }
+                img.recycle();
             }
             sleep(1000);
         }
@@ -72,73 +77,61 @@ function returnHome() {
             let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
             img.recycle(); // 释放图像资源
 
-            // 结束条件
-            let foundStartGame = false;
-            let foundThirdPerson = false;
+            // 优化：使用对象存储状态，减少变量声明
+            const textStatus = {
+                startGame: false,
+                thirdPerson: false,
+                continue: false,
+                returnHome: false,
+                ok: false,
+                exitWatch: false,
+                group: false
+            };
 
-            // 中间弹窗
-            let foundContinue = false;
-            let foundReturnHome = false;
-            let foundOK = false;
-            let foundExitWatch = false;
-            let foundGroup = false;
-
-
+            // 优化：单次遍历检测所有文本
             for (let i = 0; i < result.length; i++) {
-                // 结束条件
-                if (result[i].label.includes('开始游戏')) {
-                    foundStartGame = true;
-                }
-                else if (result[i].label.includes('第三人称')) {
-                    foundThirdPerson = true;
-                }
-                // 中间弹窗
-                else if (result[i].label.includes('继续')) {
-                    foundContinue = true;
-                }
-                else if (result[i].label.includes('返回大厅')) {
-                    foundReturnHome = true;
-                }
-                else if (result[i].label.includes('确定')) {
-                    foundOK = true;
-                }
-                else if (result[i].label.includes('退出观战')) {
-                    foundExitWatch = true;
-                }
-                else if (result[i].label.includes('暂不需要')) {
-                    foundGroup = true;
+                const label = result[i].label;
+                if (label.includes('开始游戏')) {
+                    textStatus.startGame = true;
+                } else if (label.includes('第三人称')) {
+                    textStatus.thirdPerson = true;
+                } else if (label.includes('继续')) {
+                    textStatus.continue = true;
+                } else if (label.includes('返回大厅')) {
+                    textStatus.returnHome = true;
+                } else if (label.includes('确定')) {
+                    textStatus.ok = true;
+                } else if (label.includes('退出观战')) {
+                    textStatus.exitWatch = true;
+                } else if (label.includes('暂不需要')) {
+                    textStatus.group = true;
                 }
             }
 
+            // 优化：按优先级处理弹窗，找到第一个就立即处理并跳出
+            const popups = [
+                { found: textStatus.continue, text: '继续' },
+                { found: textStatus.returnHome, text: '返回大厅' },
+                { found: textStatus.ok, text: '确定' },
+                { found: textStatus.exitWatch, text: '退出观战' },
+                { found: textStatus.group, text: '暂不需要' }
+            ];
 
-            // 中间弹窗
-            if (foundContinue) {
-                clickText('继续');
-                sleep(300);
-                continue;
+            let handled = false;
+            for (let popup of popups) {
+                if (popup.found) {
+                    clickText(popup.text);
+                    sleep(300);
+                    handled = true;
+                    break;
+                }
             }
-            if (foundReturnHome) {
-                clickText('返回大厅');
-                sleep(300);
-                continue;
-            }
-            if (foundOK) {
-                clickText('确定');
-                sleep(300);
-                continue;
-            }
-            if (foundExitWatch) {
-                clickText('退出观战');
-                sleep(300);
-                continue;
-            }
-            if (foundGroup) {
-                clickText('暂不需要');
-                sleep(300);
+
+            if (handled) {
                 continue;
             }
 
-            if (foundStartGame && foundThirdPerson) {
+            if (textStatus.startGame && textStatus.thirdPerson) {
                 break;
             }
         } catch (error) {
@@ -260,15 +253,12 @@ function getRandomOffset(point, maxOffset = 10) {
 
 // 等待文本出现
 function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.ALL) {
-    let cycle = 0;
-    let found = false;
-    while (!found && cycle < maxCycle) {
+    for (let cycle = 0; cycle < maxCycle; cycle++) {
         try {
             // 先截图，然后基于实际图像尺寸计算区域
             let img = images.captureScreen();
             if (!img) {
                 toastLog('[waitText] 截图失败，跳过本次检测');
-                cycle++;
                 sleep(sleepTime);
                 continue;
             }
@@ -276,21 +266,14 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
             let result = ocr.detect(getRegion(region, img));
             img.recycle(); // 释放图像资源
 
-            for (let i = 0; i < result.length; i++) {
-                if (result[i].label.includes(text)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
+            // 优化：使用 some 方法简化查找逻辑
+            if (result.some(item => item.label.includes(text))) {
                 return true;
-            } else {
-                cycle++;
-                sleep(sleepTime);
             }
+
+            sleep(sleepTime);
         } catch (error) {
             toastLog('[waitText] OCR 检测失败: ' + error);
-            cycle++;
             sleep(sleepTime);
         }
     }
