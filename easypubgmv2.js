@@ -57,7 +57,7 @@ function directionLoop() {
     });
 
     while (!gameOver) {
-        gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
+        gesture(1000, getRandomOffset(SPRINT_START_POINT), getRandomOffset(SPRINT_END_POINT));
         sleep(Math.random() * 1000);
     }
 
@@ -256,6 +256,14 @@ function getRandomClickPoint(x, y, maxOffset = 10) {
         x: x + (Math.random() * maxOffset * 2 - maxOffset),
         y: y + (Math.random() * maxOffset * 2 - maxOffset)
     };
+}
+
+// 在指定坐标点添加随机偏移
+function getRandomOffset(point, maxOffset = 10) {
+    return [
+        point[0] + (Math.random() * maxOffset * 2 - maxOffset),
+        point[1] + (Math.random() * maxOffset * 2 - maxOffset)
+    ];
 }
 
 // 等待文本出现
