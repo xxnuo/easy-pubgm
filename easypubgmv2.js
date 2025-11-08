@@ -59,7 +59,7 @@ function directionLoop() {
 
     while (!gameOver) {
         gesture(1000, getRandomOffset(SPRINT_START_POINT), getRandomOffset(SPRINT_END_POINT));
-        sleep(Math.random() * 500);
+        sleep(Math.random() * 1000);
     }
 
     detectEndThread.interrupt();
