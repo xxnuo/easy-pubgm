@@ -42,6 +42,7 @@ function directionLoop() {
 
     let gameOver = false;
     let detectEndThread = threads.start(function () {
+        toastLog("新线程检测");
         while (!gameOver) {
             if (isFoundText('分享名次', region = ScreenRegion.BOTTOM_RIGHT)) {
                 gameOver = true;
@@ -189,10 +190,13 @@ function startGameLoop() {
 // 主函数循环
 // turnBackLoop();
 function mainLoop() {
-    startGameLoop();
-    sleep(1000);
-    directionLoop();
-    returnHome();
+    while (true) {
+        startGameLoop();
+        sleep(1000);
+        directionLoop();
+        returnHome();
+        sleep(1000);
+    }
 }
 
 // 工具函数
