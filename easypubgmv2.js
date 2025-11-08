@@ -6,14 +6,6 @@ auto.waitFor()
 // 请求屏幕截图权限, 不限定屏幕方向
 images.requestScreenCapture();
 
-// // 初始化 RootAutomator
-// autojs.setRootMode(true);
-// let ra = new RootAutomator();
-
-// events.on('exit', function () {
-//     ra.exit();
-// });
-
 // 跳伞后回头滑动的起始坐标和结束坐标，可在特训岛打开指针位置然后将视角从南移到北测试得到，需要耐心多次调试得到合适的数值
 const TURN_BACK_START_POINT = [2760, 835];
 const TURN_BACK_END_POINT = [2305, 842];
@@ -25,7 +17,6 @@ const LOOP_UP_END_POINT = [2567, 531];
 // 将左摇杆从起始点移动到冲刺点，让角色冲刺飞行
 const SPRINT_START_POINT = [703, 1046];
 const SPRINT_END_POINT = [703, 555];
-const SPRINT_END_POINT2 = [703, 560];
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
 // 其实有更高效的办法，就是判断当前位置距离东西南北哪个边界最近然后往那边飞，但是这就涉及到识别地图了，有些复杂
