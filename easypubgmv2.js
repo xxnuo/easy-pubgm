@@ -58,7 +58,7 @@ function directionLoop() {
     });
 
     while (!gameOver) {
-        gesture(1000, getRandomOffset(SPRINT_START_POINT), getRandomOffset(SPRINT_END_POINT));
+        gesture(1000, getRandomOffset(SPRINT_START_POINT, 20), getRandomOffset(SPRINT_END_POINT, 20));
         sleep(Math.random() * 1000);
     }
 
