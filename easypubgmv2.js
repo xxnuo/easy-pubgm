@@ -43,7 +43,7 @@ function directionLoop() {
     let gameOver = false;
     let detectEndThread = threads.start(function () {
         while (!gameOver) {
-            if (isFoundText('分享战绩', region = ScreenRegion.BOTTOM_RIGHT)) {
+            if (isFoundText('分享名次', region = ScreenRegion.BOTTOM_RIGHT)) {
                 gameOver = true;
                 break;
             }
@@ -189,18 +189,10 @@ function startGameLoop() {
 // 主函数循环
 // turnBackLoop();
 function mainLoop() {
-    // startGameLoop();
-    // sleep(1000);
-    // directionLoop();
-    // returnHome();
-
-    ra.touchDown(200, 300, 1);
-    sleep(2e3)
-    ra.touchMove(300, 600, 1);
+    startGameLoop();
     sleep(1000);
-    ra.touchUp(1)
-    ra.exit();
-
+    directionLoop();
+    returnHome();
 }
 
 // 工具函数
