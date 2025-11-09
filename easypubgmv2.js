@@ -97,7 +97,7 @@ function returnHome() {
                 if (label.includes('开始游戏')) {
                     foundStartGame = true;
                 }
-                if (label.includes('第三人称')) {
+                if (label.includes('第三人称') || label.includes('限定挑战')) {
                     foundThirdPerson = true;
                 }
                 // 中间弹窗
