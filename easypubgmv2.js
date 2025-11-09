@@ -15,8 +15,8 @@ const LOOP_UP_START_POINT = [2543, 1209];
 const LOOP_UP_END_POINT = [2567, 531];
 
 // 将左摇杆从起始点移动到冲刺点，让角色冲刺飞行
-const SPRINT_START_POINT = [703, 1046];
-const SPRINT_END_POINT = [703, 555];
+const SPRINT_START_POINT = [703, 1417];
+const SPRINT_END_POINT = [703, 30];
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
 // 其实有更高效的办法，就是判断当前位置距离东西南北哪个边界最近然后往那边飞，但是这就涉及到识别地图了，有些复杂
@@ -30,44 +30,41 @@ function directionLoop() {
     gesture(1000, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
     sleep(Math.random() * 1000);
     toastLog(`冲刺: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
-    gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
+    // gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 
     let gameOver = false;
-    let detectEndThread = threads.start(function () {
-        toastLog("新线程检测");
+    let sprintThread = threads.start(function () {
+        toastLog("开始冲刺");
         while (!gameOver) {
-            // 优化：单次截图检测多个文本，减少 OCR 调用
-            let img = images.captureScreen();
-            if (img) {
-                let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
-                for (let i = 0; i < result.length; i++) {
-                    let label = result[i].label;
-                    if (label.includes('分享名次') || label.includes('退出观战')) {
-                        gameOver = true;
-                        img.recycle();
-                        return;
-                    }
-                    if (label.includes('下潜')) {
-                        clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
-                    }
-                }
-                img.recycle();
-            }
-            sleep(1000);
+            gesture(1 * 60 * 1000, getRandomOffset(SPRINT_START_POINT, 20), getRandomOffset(SPRINT_END_POINT, 20));
         }
     });
 
+    toastLog("等待成盒");
     while (!gameOver) {
-        gesture(1000, getRandomOffset(SPRINT_START_POINT, 20), getRandomOffset(SPRINT_END_POINT, 20));
-        sleep(Math.random() * 1000);
+        let img = images.captureScreen();
+        if (img) {
+            let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
+            img.recycle();
+            for (let i = 0; i < result.length; i++) {
+                let label = result[i].label;
+                if (label.includes('分享名次') || label.includes('退出观战')) {
+                    gameOver = true;
+                    sprintThread.interrupt();
+                    break;
+                }
+                if (label.includes('下潜')) {
+                    clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
+                }
+            }
+        }
+        sleep(2000);
     }
-
-    detectEndThread.interrupt();
-    toastLog("游戏结束");
+    toastLog("游戏结算");
 }
 
 function returnHome() {
-    toastLog("结束游戏")
+    toastLog("退出结算")
     while (true) {
         try {
             // 先截图，然后基于实际图像尺寸计算区域
