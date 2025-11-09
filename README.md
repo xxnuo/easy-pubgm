@@ -1,6 +1,6 @@
 # Easy PUBG Mobile
 
-基于 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 的和平精英全自动掉分脚本。
+基于 [AutoJS6](https://github.com/SuperMonster003/AutoJs6) 的`和平精英`全自动掉分`脚本`。
 
 无需 Root，无需适配机型。
 
