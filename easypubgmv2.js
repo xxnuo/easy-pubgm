@@ -196,6 +196,7 @@ function startGameLoop() {
                 clickText('匹配中', region = ScreenRegion.TOP_LEFT);
                 sleep(500);
                 clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+                needRematch = false;
             }
             if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
                 break;
