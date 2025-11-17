@@ -89,6 +89,9 @@ function returnHome() {
             let foundStartGame = false;
             let foundThirdPerson = false;
 
+            // 游戏中
+            let foundDive = false;
+
             // 中间弹窗
             let foundContinue = false;
             let foundReturnHome = false;
@@ -107,6 +110,10 @@ function returnHome() {
                 if (label.includes('第三人称') || label.includes('限定挑战')) {
                     foundThirdPerson = true;
                 }
+                // 游戏中
+                if (label.includes('下潜')) {
+                    foundDive = true;
+                }
                 // 中间弹窗
                 if (label.includes('继续')) {
                     foundContinue = true;
@@ -123,6 +130,13 @@ function returnHome() {
                 if (label.includes('暂不需要')) {
                     foundGroup = true;
                 }
+            }
+
+            // 游戏中
+            if (foundDive) {
+                clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
+                sleep(1000);
+                continue;
             }
 
             // 中间弹窗
@@ -211,19 +225,14 @@ function startGameLoop() {
         }
     }
     clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
-    sleep(500);
-    if (isFoundText('开伞', region = ScreenRegion.BOTTOM_LEFT)) {
-        toastLog('跳伞完成');
-    } else {
-        toastLog('未知状态，在大厅重启');
-        exit();
-    }
+    sleep(2000);
+    toastLog('跳伞完成');
 }
 
 // 主函数循环
 function mainLoop() {
     while (true) {
-        if (isFoundText("继续", region = ScreenRegion.BOTTOM)) {
+        if (isFoundText("继续|剩余", region = ScreenRegion.ALL)) {
             returnHome();
             sleep(500);
         }
@@ -312,7 +321,9 @@ function getRandomOffset(point, maxOffset = 10) {
 }
 
 // 等待文本出现
+// 支持 "文本1|文本2" 的或语法，匹配任意一个即返回 true
 function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.ALL) {
+    let texts = text.includes('|') ? text.split('|').map(t => t.trim()) : [text];
     let cycle = 0;
     let found = false;
     while (!found && cycle < maxCycle) {
@@ -330,10 +341,13 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
             img.recycle(); // 释放图像资源
 
             for (let i = 0; i < result.length; i++) {
-                if (result[i].label.includes(text)) {
-                    found = true;
-                    break;
+                for (let j = 0; j < texts.length; j++) {
+                    if (result[i].label.includes(texts[j])) {
+                        found = true;
+                        break;
+                    }
                 }
+                if (found) break;
             }
             if (found) {
                 return true;
@@ -351,6 +365,7 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
 }
 
 // 当前屏幕是否包含指定文本
+// 支持 "文本1|文本2" 的或语法，匹配任意一个即返回 true
 function isFoundText(text, region = ScreenRegion.ALL) {
     return waitText(text, maxCycle = 1, sleepTime = 0, region);
 }
