@@ -38,9 +38,10 @@ function directionLoop() {
     // gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 
     let gameOver = false;
+    let endSprint = false;
     let sprintThread = threads.start(function () {
         toastLog("开始冲刺");
-        while (!gameOver) {
+        while (!gameOver && !endSprint) {
             gesture(1 * 60 * 1000, getRandomOffset(SPRINT_START_POINT, 20), getRandomOffset(SPRINT_END_POINT, 20));
         }
     });
@@ -59,6 +60,7 @@ function directionLoop() {
                     break;
                 }
                 if (label.includes('下潜')) {
+                    endSprint = true;
                     clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
                 }
             }
@@ -169,37 +171,53 @@ function startGameLoop() {
     let needRematch = false;
     sleep(200);
     toastLog('等待匹配完成');
-    while (true) {
-        if (needRematch) {
-            toastLog('需要重新匹配');
-            clickText('匹配中', region = ScreenRegion.TOP_LEFT);
-            sleep(500);
-            clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+    if (isFoundText('开始游戏', region = ScreenRegion.TOP_LEFT)) {
+        // 断触，需要重新点击开始游戏
+        clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+    }
+    if (isFoundText('匹配中', region = ScreenRegion.TOP_LEFT)) {
+        while (true) {
+            if (needRematch) {
+                toastLog('需要重新匹配');
+                clickText('匹配中', region = ScreenRegion.TOP_LEFT);
+                sleep(500);
+                clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+            }
+            if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
+                break;
+            } else {
+                needRematch = new Date().getTime() - startGameTime > 30 * 1000;
+            }
+            sleep(1000);
         }
-        if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
-            break;
-        } else {
-            needRematch = new Date().getTime() - startGameTime > 30 * 1000;
-        }
-        sleep(1000);
     }
 
     toastLog('等待可跳伞');
-    while (true) {
-        if (isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
-            break;
+    if (!isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
+        while (true) {
+            if (isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
+                break;
+            }
+            sleep(4000);
         }
-        sleep(4000);
     }
     toastLog('等待跳伞');
-    while (true) {
-        if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
-            break;
+    if (!isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
+        while (true) {
+            if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
+                break;
+            }
+            sleep(500);
         }
-        sleep(500);
     }
     clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
-    toastLog('跳伞完成');
+    sleep(500);
+    if (isFoundText('开伞', region = ScreenRegion.BOTTOM_LEFT)) {
+        toastLog('跳伞完成');
+    } else {
+        toastLog('未知状态，在大厅重启');
+        exit();
+    }
 }
 
 // 主函数循环
