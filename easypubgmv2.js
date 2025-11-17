@@ -8,7 +8,7 @@ images.requestScreenCapture();
 
 // 跳伞后回头滑动的起始坐标和结束坐标，可在特训岛打开指针位置然后将视角从南移到北测试得到，需要耐心多次调试得到合适的数值
 const TURN_BACK_START_POINT = [2760, 835];
-const TURN_BACK_END_POINT = [2305, 842];
+const TURN_BACK_END_POINT = [2245, 842];
 
 // 跳伞后回头完往天上看的滑动的起始坐标和结束坐标，让跳伞飞的更远
 // 没有什么限制，只要在右半侧滑动让角色往天上尽可能多看即可
