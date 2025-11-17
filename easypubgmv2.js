@@ -28,13 +28,13 @@ images.requestScreenCapture();
 // 这样虽然不是最高效的方法，但是比较简单，最后也能往毒边跑，仅有部分情况可能会出现有石头挡住路不能前进
 // gestures 函数添加延时执行会导致手机死机重启，不知道为什么，所以现在分开成三个函数
 function directionLoop() {
-    toastLog(`回头: ${JSON.stringify(TURN_BACK_START_POINT)}, ${JSON.stringify(TURN_BACK_END_POINT)}`);
+    toastLog(`回头`);
     gesture(1000, TURN_BACK_START_POINT, TURN_BACK_END_POINT);
     sleep(Math.random() * 1000);
-    toastLog(`往上看: ${JSON.stringify(LOOP_UP_START_POINT)}, ${JSON.stringify(LOOP_UP_END_POINT)}`);
+    toastLog(`往上看`);
     gesture(1000, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
     sleep(Math.random() * 1000);
-    toastLog(`冲刺: ${JSON.stringify(SPRINT_START_POINT)}, ${JSON.stringify(SPRINT_END_POINT)}`);
+    toastLog(`冲刺`);
     // gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 
     let gameOver = false;
