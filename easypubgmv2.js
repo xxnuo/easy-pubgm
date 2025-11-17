@@ -1,10 +1,4 @@
-// 原理：自动往圈外跑，毒死或者淹死
-
-// 等待无障碍服务
-auto.waitFor()
-
-// 请求屏幕截图权限, 不限定屏幕方向
-images.requestScreenCapture();
+// 原理：自动跳伞往圈外飞，毒死或者淹死
 
 // 跳伞后回头滑动的起始坐标和结束坐标，可在特训岛打开指针位置然后将视角从南移到北测试得到，需要耐心多次调试得到合适的数值
 const TURN_BACK_START_POINT = [2760, 835];
@@ -21,6 +15,13 @@ const LOOP_UP_END_POINT = [2567, 531];
 // 因此建议摇杆和冲刺的位置都尽可能的靠近屏幕底边，触发冲刺更快
 const SPRINT_START_POINT = [703, 1417];
 const SPRINT_END_POINT = [703, 30];
+
+
+// 等待无障碍服务
+auto.waitFor()
+
+// 请求屏幕截图权限, 不限定屏幕方向
+images.requestScreenCapture();
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
 // 其实有更高效的办法，就是判断当前位置距离东西南北哪个边界最近然后往那边飞，但是这就涉及到识别地图了，有些复杂
@@ -164,14 +165,25 @@ function returnHome() {
 
 function startGameLoop() {
     clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+    let startGameTime = new Date().getTime();
+    let needRematch = false;
     sleep(200);
     toastLog('等待匹配完成');
     while (true) {
+        if (needRematch) {
+            toastLog('需要重新匹配');
+            clickText('匹配中', region = ScreenRegion.TOP_LEFT);
+            sleep(500);
+            clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+        }
         if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
             break;
+        } else {
+            needRematch = new Date().getTime() - startGameTime > 30 * 1000;
         }
         sleep(1000);
     }
+
     toastLog('等待可跳伞');
     while (true) {
         if (isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
@@ -191,29 +203,37 @@ function startGameLoop() {
 }
 
 // 主函数循环
-// turnBackLoop();
 function mainLoop() {
     while (true) {
+        if (isFoundText("继续", region = ScreenRegion.BOTTOM)) {
+            returnHome();
+            sleep(500);
+        }
+        if (isFoundText("匹配中", region = ScreenRegion.TOP_LEFT)) {
+            clickText('匹配中', region = ScreenRegion.TOP_LEFT);
+            sleep(500);
+        }
         startGameLoop();
-        sleep(1000);
+        sleep(500);
         directionLoop();
         returnHome();
-        sleep(1000);
+        sleep(500);
     }
 }
 
 // 工具函数
-
 const ScreenRegion = {
     ALL: 0,
     TOP_LEFT: 1,
     TOP_RIGHT: 2,
     BOTTOM_LEFT: 3,
     BOTTOM_RIGHT: 4,
+    TOP: 5,
+    BOTTOM: 6,
 }
 
-// 将屏幕分为四个区域，计算每个区域的 region
-// @param {number} region - 区域索引，0-3 分别对应左上、右上、左下、右下
+// 将屏幕分为六个区域，计算每个区域的 region
+// @param {number} region - 区域索引，0-3 分别对应左上、右上、左下、右下，5 对应屏幕上半部分，6 对应屏幕下半部分
 // @param {Image} img - 可选的图像对象，用于获取实际图像尺寸
 // @returns {number[]} - 区域坐标 [X 坐标, Y 坐标, 宽, 高]
 function getRegion(region, img) {
@@ -240,6 +260,10 @@ function getRegion(region, img) {
             return [0, regionHeight, regionWidth, regionHeight];
         case ScreenRegion.BOTTOM_RIGHT:
             return [regionWidth, regionHeight, regionWidth, regionHeight];
+        case ScreenRegion.TOP:
+            return [0, 0, width, regionHeight];
+        case ScreenRegion.BOTTOM:
+            return [0, regionHeight, width, regionHeight];
         default:
             return [0, 0, width, height];
     }
