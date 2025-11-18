@@ -197,10 +197,7 @@ function startGameLoop() {
                 sleep(500);
                 clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
                 needRematch = false;
-                sleep(500);
-                continue;
-            }
-            if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
+            } else if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
                 break;
             } else {
                 needRematch = new Date().getTime() - startGameTime > 30 * 1000;
