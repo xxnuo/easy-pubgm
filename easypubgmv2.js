@@ -1,8 +1,8 @@
 // 原理：自动跳伞往圈外飞，毒死或者淹死
 
 // 跳伞后回头滑动的起始坐标和结束坐标，可在特训岛打开指针位置然后将视角从南移到北测试得到，需要耐心多次调试得到合适的数值
-const TURN_BACK_START_POINT = [2760, 835];
-const TURN_BACK_END_POINT = [2245, 842];
+const TURN_BACK_START_POINT = [2760, 800];
+const TURN_BACK_END_POINT = [2135, 800];
 
 // 跳伞后回头完往天上看的滑动的起始坐标和结束坐标，让跳伞飞的更远
 // 没有什么限制，只要在右半侧滑动让角色往天上尽可能多看即可
@@ -13,8 +13,8 @@ const LOOP_UP_END_POINT = [2567, 531];
 // 格式是 [x, y]，建议 y 坐标设置为摇杆的中心点 y 值，开始和结束的 x 从屏幕的底部滑到顶部
 // 因为受限于无障碍权限只能做到滑动做不到滑动后按住，这样达到通过一分钟的缓慢长滑动达到飞得更远的效果
 // 因此建议摇杆和冲刺的位置都尽可能的靠近屏幕底边，触发冲刺更快
-const SPRINT_START_POINT = [703, 1417];
-const SPRINT_END_POINT = [703, 30];
+const SPRINT_START_POINT = [600, 1400];
+const SPRINT_END_POINT = [600, 30];
 
 // 等待无障碍服务
 auto.waitFor()
@@ -39,8 +39,8 @@ events.on("exit", function () {
     window.close();
 });
 
-// 重写 toastLog 函数，改为更新悬浮窗内容
-toastLog = function (msg) {
+// 重写 tip 函数，改为更新悬浮窗内容
+tip = function (msg) {
     ui.run(function () {
         window.statusText.setText(String(msg));
     });
@@ -52,25 +52,25 @@ toastLog = function (msg) {
 // 这样虽然不是最高效的方法，但是比较简单，最后也能往毒边跑，仅有部分情况可能会出现有石头挡住路不能前进
 // gestures 函数添加延时执行会导致手机死机重启，不知道为什么，所以现在分开成三个函数
 function directionLoop() {
-    toastLog(`回头`);
-    gesture(1000, TURN_BACK_START_POINT, TURN_BACK_END_POINT);
+    tip(`回头`);
+    gesture(500, TURN_BACK_START_POINT, TURN_BACK_END_POINT);
     sleep(Math.random() * 1000);
-    toastLog(`往上看`);
-    gesture(1000, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
-    sleep(Math.random() * 1000);
-    toastLog(`冲刺`);
+    tip(`往上看`);
+    gesture(500, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
+    // sleep(Math.random() * 1000);
+    tip(`冲刺`);
     // gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 
     let gameOver = false;
     let endSprint = false;
     let sprintThread = threads.start(function () {
-        toastLog("开始冲刺");
+        tip("开始冲刺");
         while (!gameOver && !endSprint) {
-            gesture(1 * 60 * 1000, getRandomOffset(SPRINT_START_POINT, 20), getRandomOffset(SPRINT_END_POINT, 20));
+            gesture(1 * 60 * 1000, getRandomOffset(SPRINT_START_POINT, 5), getRandomOffset(SPRINT_END_POINT, 5));
         }
     });
 
-    toastLog("等待成盒");
+    tip("等待成盒");
     while (!gameOver) {
         let img = images.captureScreen();
         if (img) {
@@ -91,17 +91,17 @@ function directionLoop() {
         }
         sleep(2000);
     }
-    toastLog("游戏结算");
+    tip("游戏结算");
 }
 
 function returnHome() {
-    toastLog("退出结算")
+    tip("退出结算")
     while (true) {
         try {
             // 先截图，然后基于实际图像尺寸计算区域
             let img = images.captureScreen();
             if (!img) {
-                toastLog('截图失败，跳过本次检测');
+                tip('截图失败，跳过本次检测');
                 sleep(300);
                 continue;
             }
@@ -194,29 +194,30 @@ function returnHome() {
                 break;
             }
         } catch (error) {
-            toastLog('OCR 检测失败: ' + error);
+            tip('OCR 检测失败: ' + error);
             sleep(300);
         }
     }
 
-    toastLog('回到大厅');
+    tip('回到大厅');
 }
 
 
 function startGameLoop() {
-    clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+    // 防止误触取消，点击时间缩短为 50ms
+    clickText('开始游戏', clickTime = 50, region = ScreenRegion.TOP_LEFT);
     let startGameTime = new Date().getTime();
     let needRematch = false;
     sleep(200);
-    toastLog('等待匹配完成');
+    tip('等待匹配完成');
     if (isFoundText('开始游戏', region = ScreenRegion.TOP_LEFT)) {
         // 断触，需要重新点击开始游戏
-        clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
+        clickText('开始游戏', clickTime = 50, region = ScreenRegion.TOP_LEFT);
     }
     if (isFoundText('匹配中', region = ScreenRegion.TOP_LEFT)) {
         while (true) {
             if (needRematch) {
-                toastLog('需要重新匹配');
+                tip('需要重新匹配');
                 clickText('匹配中', region = ScreenRegion.TOP_LEFT);
                 sleep(500);
                 clickText('开始游戏', region = ScreenRegion.TOP_LEFT);
@@ -230,7 +231,7 @@ function startGameLoop() {
         }
     }
 
-    toastLog('等待可跳伞');
+    tip('等待可跳伞');
     if (!isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
         while (true) {
             if (isFoundText('剩余', region = ScreenRegion.TOP_LEFT)) {
@@ -239,7 +240,7 @@ function startGameLoop() {
             sleep(4000);
         }
     }
-    toastLog('等待跳伞');
+    tip('等待跳伞');
     if (!isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
         while (true) {
             if (isFoundText('离开', region = ScreenRegion.BOTTOM_LEFT)) {
@@ -250,7 +251,7 @@ function startGameLoop() {
     }
     clickText('离开', region = ScreenRegion.BOTTOM_LEFT);
     sleep(2000);
-    toastLog('跳伞完成');
+    tip('跳伞完成');
 }
 
 // 主函数循环
@@ -355,7 +356,7 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
             // 先截图，然后基于实际图像尺寸计算区域
             let img = images.captureScreen();
             if (!img) {
-                toastLog('截图失败，跳过本次检测');
+                tip('截图失败，跳过本次检测');
                 cycle++;
                 sleep(sleepTime);
                 continue;
@@ -380,7 +381,7 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
                 sleep(sleepTime);
             }
         } catch (error) {
-            toastLog('OCR 检测失败: ' + error);
+            tip('OCR 检测失败: ' + error);
             cycle++;
             sleep(sleepTime);
         }
@@ -400,7 +401,7 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
         // 先截图，然后基于实际图像尺寸计算区域
         let img = images.captureScreen();
         if (!img) {
-            toastLog('截图失败');
+            tip('截图失败');
             return false;
         }
 
@@ -416,7 +417,7 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
         }
         return false;
     } catch (error) {
-        toastLog('OCR 检测失败: ' + error);
+        tip('OCR 检测失败: ' + error);
         return false;
     }
 }
