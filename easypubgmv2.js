@@ -16,12 +16,36 @@ const LOOP_UP_END_POINT = [2567, 531];
 const SPRINT_START_POINT = [703, 1417];
 const SPRINT_END_POINT = [703, 30];
 
-
 // 等待无障碍服务
 auto.waitFor()
 
 // 请求屏幕截图权限, 不限定屏幕方向
 images.requestScreenCapture();
+
+// 初始化静态提示悬浮窗
+var window = floaty.rawWindow(
+    <frame gravity="center">
+        <card w="auto" cardCornerRadius="10dp" cardBackgroundColor="#AA000000">
+            <text id="statusText" text="脚本已启动" textSize="16sp" textColor="#FFFFFF" />
+        </card>
+    </frame>
+);
+window.setSize(device.width, -2);
+window.setPosition(0, 100); // 初始位置，顶部向下偏移 100px
+window.setTouchable(false);   // 设置为不可触摸，防止遮挡
+
+// 脚本结束时关闭悬浮窗
+events.on("exit", function () {
+    window.close();
+});
+
+// 重写 toastLog 函数，改为更新悬浮窗内容
+toastLog = function (msg) {
+    ui.run(function () {
+        window.statusText.setText(String(msg));
+    });
+    log(msg); // 保留控制台日志
+};
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
 // 其实有更高效的办法，就是判断当前位置距离东西南北哪个边界最近然后往那边飞，但是这就涉及到识别地图了，有些复杂
