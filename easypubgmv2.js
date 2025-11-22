@@ -136,10 +136,10 @@ function returnHome() {
                 }
                 else if (label.includes('总积分')) {
                     totalLostScore += matchScore(label);
-                    tip('结算');
+                    // tip('结算');
                 } else if (label.includes('热血青铜') || label.includes('不屈白银') || label.includes('英勇黄金') || label.includes('坚韧铂金') || label.includes('不朽星钻') || label.includes('荣耀皇冠') || label.includes('超级王牌') || label.includes('无敌战神')) {
                     currentLevel = label.trim();
-                    tip('结算');
+                    // tip('结算');
                 } else if (label.includes('继续')) {
                     foundContinue = true;
                 } else if (label.includes('返回大厅')) {
