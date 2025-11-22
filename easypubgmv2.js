@@ -62,9 +62,7 @@ function directionLoop() {
     sleep(Math.random() * 1000);
     tip(`往上看`);
     gesture(500, LOOP_UP_START_POINT, LOOP_UP_END_POINT);
-    // sleep(Math.random() * 1000);
     tip(`冲刺`);
-    // gesture(1000, SPRINT_START_POINT, SPRINT_END_POINT);
 
     let gameOver = false;
     let endSprint = false;
@@ -77,22 +75,26 @@ function directionLoop() {
 
     tip("等待成盒");
     while (!gameOver) {
-        let img = images.captureScreen();
-        if (img) {
-            let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
-            img.recycle();
-            for (let i = 0; i < result.length; i++) {
-                let label = result[i].label;
-                if (label.includes('分享名次') || label.includes('退出观战')) {
-                    gameOver = true;
-                    sprintThread.interrupt();
-                    break;
-                }
-                if (label.includes('下潜')) {
-                    endSprint = true;
-                    clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
+        try {
+            let img = images.captureScreen();
+            if (img) {
+                let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
+                img.recycle();
+                for (let i = 0; i < result.length; i++) {
+                    let label = result[i].label;
+                    if (label.includes('分享名次') || label.includes('退出观战')) {
+                        gameOver = true;
+                        sprintThread.interrupt();
+                        break;
+                    }
+                    if (label.includes('下潜')) {
+                        endSprint = true;
+                        clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
+                    }
                 }
             }
+        } catch (error) {
+            tip('OCR 检测失败: ' + error);
         }
         sleep(2000);
     }
@@ -103,7 +105,6 @@ function returnHome() {
     tip("退出结算")
     while (true) {
         try {
-            // 先截图，然后基于实际图像尺寸计算区域
             let img = images.captureScreen();
             if (!img) {
                 tip('截图失败，跳过本次检测');
@@ -112,18 +113,11 @@ function returnHome() {
             }
 
             let result = ocr.detect(getRegion(ScreenRegion.ALL, img));
-            img.recycle(); // 释放图像资源
+            img.recycle();
 
-            // 结束条件
             let foundStartGame = false;
             let foundThirdPerson = false;
-
-            // 游戏中
             let foundDive = false;
-
-            // 中间弹窗
-            let foundScore = false;
-            let foundLevel = false;
             let foundContinue = false;
             let foundReturnHome = false;
             let foundOK = false;
@@ -132,22 +126,20 @@ function returnHome() {
 
             for (let i = 0; i < result.length; i++) {
                 let label = result[i].label;
-                // log(label);
-                // 结束条件
                 if (label.includes('开始游戏')) {
                     foundStartGame = true;
                 } else if (label.includes('第三人称') || label.includes('限定挑战')) {
                     foundThirdPerson = true;
                 }
-                // 游戏中
                 else if (label.includes('下潜')) {
                     foundDive = true;
                 }
-                // 中间弹窗
                 else if (label.includes('总积分')) {
-                    foundScore = true;
+                    totalLostScore += matchScore(label);
+                    tip('结算');
                 } else if (label.includes('热血青铜') || label.includes('不屈白银') || label.includes('英勇黄金') || label.includes('坚韧铂金') || label.includes('不朽星钻') || label.includes('荣耀皇冠') || label.includes('超级王牌') || label.includes('无敌战神')) {
-                    foundLevel = true;
+                    currentLevel = label.trim();
+                    tip('结算');
                 } else if (label.includes('继续')) {
                     foundContinue = true;
                 } else if (label.includes('返回大厅')) {
@@ -161,20 +153,12 @@ function returnHome() {
                 }
             }
 
-            // 游戏中
             if (foundDive) {
                 clickText('下潜', region = ScreenRegion.BOTTOM_RIGHT);
                 sleep(1000);
                 continue;
             }
 
-            // 中间弹窗
-            if (foundScore) {
-                totalLostScore += matchScore(label);
-            }
-            if (foundLevel) {
-                currentLevel = label.trim();
-            }
             if (foundContinue) {
                 clickText('继续');
                 sleep(300);
@@ -200,17 +184,15 @@ function returnHome() {
                 sleep(300);
                 continue;
             }
-
             if (foundStartGame && foundThirdPerson) {
-                break;
+                tip('回到大厅');
+                return;
             }
         } catch (error) {
             tip('OCR 检测失败: ' + error);
-            sleep(300);
         }
+        sleep(300);
     }
-
-    tip('回到大厅');
 }
 
 
@@ -364,7 +346,6 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
     let found = false;
     while (!found && cycle < maxCycle) {
         try {
-            // 先截图，然后基于实际图像尺寸计算区域
             let img = images.captureScreen();
             if (!img) {
                 tip('截图失败，跳过本次检测');
@@ -374,7 +355,7 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
             }
 
             let result = ocr.detect(getRegion(region, img));
-            img.recycle(); // 释放图像资源
+            img.recycle();
 
             for (let i = 0; i < result.length; i++) {
                 for (let j = 0; j < texts.length; j++) {
@@ -385,14 +366,12 @@ function waitText(text, maxCycle = 30, sleepTime = 700, region = ScreenRegion.AL
                 }
                 if (found) break;
             }
-            if (found) {
-                return true;
-            } else {
-                cycle++;
-                sleep(sleepTime);
-            }
         } catch (error) {
             tip('OCR 检测失败: ' + error);
+        }
+        if (found) {
+            return true;
+        } else {
             cycle++;
             sleep(sleepTime);
         }
@@ -409,7 +388,6 @@ function isFoundText(text, region = ScreenRegion.ALL) {
 // 点击文本
 function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, reverse = false, region = ScreenRegion.ALL) {
     try {
-        // 先截图，然后基于实际图像尺寸计算区域
         let img = images.captureScreen();
         if (!img) {
             tip('截图失败');
@@ -417,7 +395,7 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
         }
 
         let result = ocr.detect(getRegion(region, img));
-        img.recycle(); // 释放图像资源
+        img.recycle();
 
         for (let i = reverse ? 0 : result.length - 1; i >= 0 && i < result.length; i += reverse ? 1 : -1) {
             if (fullTextMatch ? result[i].label === text : result[i].label.includes(text)) {
