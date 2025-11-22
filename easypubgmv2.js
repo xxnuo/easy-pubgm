@@ -49,7 +49,7 @@ tip = function (msg) {
     ui.run(function () {
         window.statusText.setText('[' + totalLostScore + '][' + currentLevel + ']' + ' ' + String(msg));
     });
-    log('[' + totalLostScore + '][' + currentLevel + ']' + ' ' + String(msg)); // 保留控制台日志
+    log('[' + totalLostScore + '][' + currentLevel + ']' + String(msg)); // 保留控制台日志
 };
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
