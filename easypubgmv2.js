@@ -27,7 +27,6 @@ ocr.mode = 'paddle';
 let totalLostScore = 0;
 let currentLevel = '';
 
-
 // 初始化静态提示悬浮窗
 var window = floaty.rawWindow(
     <frame gravity="center">
@@ -123,6 +122,8 @@ function returnHome() {
             let foundDive = false;
 
             // 中间弹窗
+            let foundScore = false;
+            let foundLevel = false;
             let foundContinue = false;
             let foundReturnHome = false;
             let foundOK = false;
@@ -144,9 +145,9 @@ function returnHome() {
                 }
                 // 中间弹窗
                 else if (label.includes('总积分')) {
-                    totalLostScore += matchScore(label);
+                    foundScore = true;
                 } else if (label.includes('热血青铜') || label.includes('不屈白银') || label.includes('英勇黄金') || label.includes('坚韧铂金') || label.includes('不朽星钻') || label.includes('荣耀皇冠') || label.includes('超级王牌') || label.includes('无敌战神')) {
-                    currentLevel = label;
+                    foundLevel = true;
                 } else if (label.includes('继续')) {
                     foundContinue = true;
                 } else if (label.includes('返回大厅')) {
@@ -168,6 +169,12 @@ function returnHome() {
             }
 
             // 中间弹窗
+            if (foundScore) {
+                totalLostScore += matchScore(label);
+            }
+            if (foundLevel) {
+                currentLevel = label.trim();
+            }
             if (foundContinue) {
                 clickText('继续');
                 sleep(300);
