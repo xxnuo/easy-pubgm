@@ -117,7 +117,10 @@ function returnHome() {
 
             let foundStartGame = false;
             let foundThirdPerson = false;
+
+            let foundOpenParachute = false;
             let foundDive = false;
+
             let foundContinue = false;
             let foundReturnHome = false;
             let foundOK = false;
@@ -130,11 +133,11 @@ function returnHome() {
                     foundStartGame = true;
                 } else if (label.includes('第三人称') || label.includes('限定挑战')) {
                     foundThirdPerson = true;
-                }
-                else if (label.includes('下潜')) {
+                } else if (label.includes('开伞')) {
+                    foundOpenParachute = true;
+                } else if (label.includes('下潜')) {
                     foundDive = true;
-                }
-                else if (label.includes('总积分')) {
+                } else if (label.includes('总积分')) {
                     totalLostScore += matchScore(label);
                     tip('结算');
                 } else if (label.includes('热血青铜') || label.includes('不屈白银') || label.includes('英勇黄金') || label.includes('坚韧铂金') || label.includes('不朽星钻') || label.includes('荣耀皇冠') || label.includes('超级王牌') || label.includes('无敌战神')) {
