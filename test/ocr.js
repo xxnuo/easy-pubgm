@@ -32,11 +32,11 @@ function getRegion(region) {
 
 images.requestScreenCapture();
 
-console.log('ocr.mode = "mlkit"')
-let result = ocr.detect(getRegion(ScreenRegion.TOP_RIGHT));
-console.log(result)
+// console.log('ocr.mode = "mlkit"')
+// let result = ocr.detect(getRegion(ScreenRegion.TOP_RIGHT));
+// console.log(result)
 
 ocr.mode = 'paddle';
 console.log('ocr.mode = "paddle"')
-let result2 = ocr.detect(getRegion(ScreenRegion.TOP_RIGHT));
+let result2 = ocr.detect(getRegion(ScreenRegion.ALL));
 console.log(result2)
