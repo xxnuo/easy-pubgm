@@ -21,6 +21,12 @@ auto.waitFor()
 
 // 请求屏幕截图权限, 不限定屏幕方向
 images.requestScreenCapture();
+ocr.mode = 'paddle';
+
+// 数据统计
+let totalLostScore = 0;
+let currentLevel = '';
+
 
 // 初始化静态提示悬浮窗
 var window = floaty.rawWindow(
@@ -42,9 +48,9 @@ events.on("exit", function () {
 // 重写 tip 函数，改为更新悬浮窗内容
 tip = function (msg) {
     ui.run(function () {
-        window.statusText.setText(String(msg));
+        window.statusText.setText('[' + totalLostScore + '][' + currentLevel + ']' + ' ' + String(msg));
     });
-    log(msg); // 保留控制台日志
+    log('[' + totalLostScore + '][' + currentLevel + ']' + ' ' + String(msg)); // 保留控制台日志
 };
 
 // 默认跳伞后视角与飞机航线相同，该函数将视角旋转 180 度，朝向飞机航线相反方向
@@ -139,6 +145,9 @@ function returnHome() {
                     foundDive = true;
                 }
                 // 中间弹窗
+                if (label.includes('总积分')) {
+                    totalLostScore += matchScore(label);
+                }
                 if (label.includes('继续')) {
                     foundContinue = true;
                 }
@@ -225,7 +234,7 @@ function startGameLoop() {
             } else if (isFoundText('人数', region = ScreenRegion.TOP_LEFT)) {
                 break;
             } else {
-                needRematch = new Date().getTime() - startGameTime > 30 * 1000;
+                needRematch = new Date().getTime() - startGameTime > 20 * 1000;
             }
             sleep(1000);
         }
@@ -420,6 +429,32 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
         tip('OCR 检测失败: ' + error);
         return false;
     }
+}
+
+// 匹配文本
+function matchScore(text) {
+    // 提供文本：总积分-16 或 总积分-16排名分-15淘汰分-7 或 总积分+4 或 总积分+4排名分+1淘汰分+2
+    let idx = text.indexOf('总积分');
+    if (idx === -1) return 0;
+
+    idx += 3;
+    let sign = text[idx];
+
+    if (sign === '—' || sign === '一') {
+        sign = '-';
+    } else if (sign !== '+' && sign !== '-') {
+        return 0;
+    }
+
+    idx++;
+    let numStr = '';
+    while (idx < text.length && text[idx] >= '0' && text[idx] <= '9') {
+        numStr += text[idx];
+        idx++;
+    }
+
+    if (numStr === '') return 0;
+    return parseInt(sign + numStr);
 }
 
 // 主函数循环
