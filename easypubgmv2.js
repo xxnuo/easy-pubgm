@@ -37,7 +37,7 @@ var window = floaty.rawWindow(
     </frame>
 );
 window.setSize(device.width, -2);
-window.setPosition(0, 100); // 初始位置，顶部向下偏移 100px
+window.setPosition(0, 1); // 初始位置，顶部向下偏移 1px
 window.setTouchable(false);   // 设置为不可触摸，防止遮挡
 
 // 脚本结束时关闭悬浮窗
@@ -129,38 +129,33 @@ function returnHome() {
             let foundExitWatch = false;
             let foundGroup = false;
 
-
             for (let i = 0; i < result.length; i++) {
                 let label = result[i].label;
                 // log(label);
                 // 结束条件
                 if (label.includes('开始游戏')) {
                     foundStartGame = true;
-                }
-                if (label.includes('第三人称') || label.includes('限定挑战')) {
+                } else if (label.includes('第三人称') || label.includes('限定挑战')) {
                     foundThirdPerson = true;
                 }
                 // 游戏中
-                if (label.includes('下潜')) {
+                else if (label.includes('下潜')) {
                     foundDive = true;
                 }
                 // 中间弹窗
-                if (label.includes('总积分')) {
+                else if (label.includes('总积分')) {
                     totalLostScore += matchScore(label);
-                }
-                if (label.includes('继续')) {
+                } else if (label.includes('热血青铜') || label.includes('不屈白银') || label.includes('英勇黄金') || label.includes('坚韧铂金') || label.includes('不朽星钻') || label.includes('荣耀皇冠') || label.includes('超级王牌') || label.includes('无敌战神')) {
+                    currentLevel = label;
+                } else if (label.includes('继续')) {
                     foundContinue = true;
-                }
-                if (label.includes('返回大厅')) {
+                } else if (label.includes('返回大厅')) {
                     foundReturnHome = true;
-                }
-                if (label.includes('确定')) {
+                } else if (label.includes('确定')) {
                     foundOK = true;
-                }
-                if (label.includes('退出观战')) {
+                } else if (label.includes('退出观战')) {
                     foundExitWatch = true;
-                }
-                if (label.includes('暂不需要')) {
+                } else if (label.includes('暂不需要')) {
                     foundGroup = true;
                 }
             }
@@ -432,7 +427,17 @@ function clickText(text, maxOffset = 1, clickTime = 200, fullTextMatch = false, 
 }
 
 // 匹配文本
+let matchScoreDebounce = 0;
 function matchScore(text) {
+    // log('matchScore: ' + text);
+
+    // 防抖：30秒内仅有一次输入有效
+    let now = Date.now();
+    if (now - matchScoreDebounce < 30000) {
+        log('matchScore: 防抖中，忽略本次调用');
+        return 0;
+    }
+
     // 提供文本：总积分-16 或 总积分-16排名分-15淘汰分-7 或 总积分+4 或 总积分+4排名分+1淘汰分+2
     let idx = text.indexOf('总积分');
     if (idx === -1) return 0;
@@ -454,6 +459,11 @@ function matchScore(text) {
     }
 
     if (numStr === '') return 0;
+
+    // 更新防抖时间戳
+    matchScoreDebounce = now;
+
+    // log('matchedScore: ' + sign + numStr);
     return parseInt(sign + numStr);
 }
 
